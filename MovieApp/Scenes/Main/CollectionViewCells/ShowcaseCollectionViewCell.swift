@@ -22,14 +22,15 @@ final class ShowcaseCollectionViewCell: UICollectionViewCell {
     }
     
     func populate(with model: Any?) {
-        if let item = model as? [MovieModel] {
-            models = item
-            DispatchQueue.main.async {
-                self.detailCV.reloadData()
+        if let item = model as? Observable<[MovieModel]> {
+            item.bind { [weak self] movieModels in
+                self?.models = movieModels
+                DispatchQueue.main.async {
+                    self?.detailCV.reloadData()
+                }
             }
         }
     }
-
 }
 
 //MARK: - CollectionView Stuff
