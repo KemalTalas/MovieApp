@@ -23,7 +23,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = mainNavController
         window?.makeKeyAndVisible()
         
+        cancelTranslucentNavBar()
+        
         return true
+    }
+    
+    func cancelTranslucentNavBar() {
+        if #available(iOS 15, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            UINavigationBar.appearance().standardAppearance = appearance
+            UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
 }
 

@@ -27,7 +27,7 @@ final class DetailCollectionViewCell: UICollectionViewCell {
         if let item = model as? MovieModel {
             let url = URL(string: "https://image.tmdb.org/t/p/w500" + item.posterPath~)
             detailImageView.kf.setImage(with: url)
-            detailTitleLabel.text = item.title
+            detailTitleLabel.text = item.title ?? item.name
         }
     }
 }

@@ -10,6 +10,11 @@ import Foundation
 enum urlType {
     case movieDetail
     case popularMovies
+    case trendingMovies
+    case topRatedMovies
+    case popularTV
+    case trendingTV
+    case topRatedTV
     case search
     case movieCredits
     case actorDetail

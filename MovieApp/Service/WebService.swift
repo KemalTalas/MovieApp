@@ -40,6 +40,16 @@ final class WebService {
         case .trailer:
             return URL(string: WebService.baseURL + "movie/\(movieID~)/videos" + "?api_key=\(WebService.apiKey)")
 
+        case .trendingMovies:
+            return URL(string: WebService.baseURL + "trending/movie/week" + "?api_key=\(WebService.apiKey)" + "&page=\(page~)")
+        case .topRatedMovies:
+            return URL(string: WebService.baseURL + "movie/top_rated" + "?api_key=\(WebService.apiKey)" + "&page=\(page~)")
+        case .popularTV:
+            return URL(string: WebService.baseURL + "tv/popular" + "?api_key=\(WebService.apiKey)" + "&page=\(page~)")
+        case .trendingTV:
+            return URL(string: WebService.baseURL + "trending/tv/week" + "?api_key=\(WebService.apiKey)" + "&page=\(page~)")
+        case .topRatedTV:
+            return URL(string: WebService.baseURL + "tv/top_rated" + "?api_key=\(WebService.apiKey)" + "&page=\(page~)")
         }
     }
 
@@ -66,7 +76,7 @@ final class WebService {
             errorHandler(.urlError)
             return
         }
-        
+        print(url)
         AF.request(url, method: .get).responseDecodable(of: S.self) { response in
             if let error = response.error {
                 print("🛑 error occured at get request. Error : " + error.localizedDescription)

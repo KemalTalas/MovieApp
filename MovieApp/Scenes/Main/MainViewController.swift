@@ -4,6 +4,8 @@
 //
 //  Created by Kemal Burak Talas on 14.03.2023.
 //
+//TODO: Segment, SetSections'ı segment içinde çağır
+//TODO: Viewmodel'a bak orda fonksiyonları düzenle
 
 import UIKit
 
@@ -36,8 +38,9 @@ class MainViewController: UIViewController {
         return flowLayout
     }()
     
-    private lazy var mainCV: UICollectionView = .init(frame: .zero,
+    lazy var mainCV: UICollectionView = .init(frame: .zero,
                                                       collectionViewLayout: self.flowLayout)
+    private lazy var segmentController = UISegmentedControl (items: ["Movie","TV"])
     
     init(with viewModel: MainViewModel) {
         self.viewModel = viewModel
@@ -51,17 +54,14 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
+        setNavigation()
         bindItems()
         loadData(viewType: .movie)
+        loadData(viewType: .tv)
     }
     
     private func loadData(viewType: MainVCViewType) {
-        switch viewType {
-        case .movie:
-            viewModel.getPopularMovies()
-        case .tv:
-            ()
-        }
+        viewModel.loadData(dataType: viewType)
     }
     
     private func bindItems() {
@@ -85,6 +85,10 @@ extension MainViewController : UICollectionViewDelegate,
         mainCV.dataSource = self
         mainCV.delegate = self
         mainCV.contentInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        mainCV.register(UINib(nibName: ShowcaseCollectionViewCell.identifier, bundle: nil), forCellWithReuseIdentifier: ShowcaseCollectionViewCell.identifier)
+        self.view.addSubview(mainCV)
+        mainCV.translatesAutoresizingMaskIntoConstraints = true
+        self.mainCV.frame = self.view.frame
     }
     
     private func setSections(viewType type: MainVCViewType) {
@@ -98,9 +102,9 @@ extension MainViewController : UICollectionViewDelegate,
                         .topRatedTV,
                         .trendingTV]
         case .movie:
-            sections = [.popularTV,
-                        .topRatedTV,
-                        .trendingTV]
+            sections = [.popularMovie,
+                        .topRatedMovie,
+                        .trendingMovie]
         }
         
         cvSections.value = sections
@@ -122,11 +126,11 @@ extension MainViewController : UICollectionViewDelegate,
         let currentSection = cvSections.value[indexPath.section]
         switch currentSection {
         case .trendingTV:
-            ()
+            cell.populate(with: viewModel.trendingTV)
         case .topRatedTV:
-            ()
+            cell.populate(with: viewModel.topRatedTV)
         case .popularTV:
-            ()
+            cell.populate(with: viewModel.popularTV)
         case .popularMovie:
             cell.populate(with: viewModel.popularMovies)
         case .trendingMovie:
@@ -135,6 +139,9 @@ extension MainViewController : UICollectionViewDelegate,
             cell.populate(with: viewModel.topRatedMovies)
         }
         
+        cell.setTitle(text: viewModel.getText(for: currentSection))
+        cell.delegate = self
+        cell.setCellType(type: currentSection)
         return cell
     }
     
@@ -142,6 +149,44 @@ extension MainViewController : UICollectionViewDelegate,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: UIScreen.main.bounds.width,
-                      height: 388)
+                      height: 420)
+    }
+    
+    func setNavigation() {
+        
+        segmentController.selectedSegmentIndex = 0
+        segmentController.addTarget(self, action:#selector(self.segmentChanged(_:)), for: .valueChanged)
+        segmentController.sizeToFit()
+        self.navigationItem.titleView = segmentController
+    }
+    
+    @objc func segmentChanged(_ sender : UISegmentedControl!) {
+        switch sender.selectedSegmentIndex{
+        case 0:
+            setSections(viewType: .movie)
+        case 1:
+            setSections(viewType: .tv)
+        default:
+            setSections(viewType: .movie)
+        }
+    }
+}
+
+extension MainViewController: ShowcaseCollectionViewCellDelegate {
+    func getNextPage(for type: MainCVSectionType) {
+        switch type {
+        case .popularMovie:
+            viewModel.getPopularMovies(isNextPage: true)
+        case .trendingMovie:
+            viewModel.getTrendingMovies(isNextPage: true)
+        case .topRatedMovie:
+            viewModel.getTopratedMovies(isNextPage: true)
+        case .popularTV:
+            viewModel.getPopularTV(isNextPage: true)
+        case .trendingTV:
+            viewModel.getTrendingTV(isNextPage: true)
+        case .topRatedTV:
+            viewModel.getTopratedTV(isNextPage: true)
+        }
     }
 }

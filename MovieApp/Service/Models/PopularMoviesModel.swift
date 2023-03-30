@@ -37,6 +37,7 @@ struct MovieModel: Codable {
     var id: Int?
     var voteCount: Int?
     var title: String?
+    var name : String?
     var originalLanguage: String?
     var originalTitle: String?
     var overview: String?
@@ -50,6 +51,7 @@ struct MovieModel: Codable {
         case genreIds = "genre_ids"
         case id
         case title
+        case name
         case originalLanguage = "original_language"
         case originalTitle = "original_title"
         case overview

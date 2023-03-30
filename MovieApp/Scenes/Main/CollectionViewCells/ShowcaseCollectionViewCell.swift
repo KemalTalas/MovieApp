@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol ShowcaseCollectionViewCellDelegate: AnyObject {
+    func getNextPage(for type: MainCVSectionType)
+}
+
 final class ShowcaseCollectionViewCell: UICollectionViewCell {
     
     static let identifier = "ShowcaseCollectionViewCell"
@@ -15,21 +19,33 @@ final class ShowcaseCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var detailCV: UICollectionView!
     
     private var models: [MovieModel]?
+    private var cellType: MainCVSectionType?
+    private var pageCount: Int = 1
+    weak var delegate: ShowcaseCollectionViewCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
         setupCollectionView()
     }
     
+    func setTitle(text: String) {
+        titleLabel.text = text
+    }
+    
     func populate(with model: Any?) {
         if let item = model as? Observable<[MovieModel]> {
             item.bind { [weak self] movieModels in
                 self?.models = movieModels
+                
                 DispatchQueue.main.async {
                     self?.detailCV.reloadData()
                 }
             }
         }
+    }
+    
+    func setCellType(type: MainCVSectionType) {
+        self.cellType = type
     }
 }
 
@@ -67,11 +83,20 @@ extension ShowcaseCollectionViewCell: UICollectionViewDelegate, UICollectionView
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 185,
-                      height: 340)
+                      height: 380)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 15
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if pageCount * 20 == indexPath.row + 1 {
+            guard let type = cellType
+            else { return }
+            pageCount += 1
+            delegate?.getNextPage(for: type)
+        }
     }
 }
 
