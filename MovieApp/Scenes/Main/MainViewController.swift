@@ -4,8 +4,6 @@
 //
 //  Created by Kemal Burak Talas on 14.03.2023.
 //
-//TODO: Segment, SetSections'ı segment içinde çağır
-//TODO: Viewmodel'a bak orda fonksiyonları düzenle
 
 import UIKit
 
@@ -26,9 +24,9 @@ enum MainVCViewType {
 class MainViewController: UIViewController {
     
     private var viewModel: MainViewModel
-    
     private var cvSections: Observable<[MainCVSectionType]> = Observable([])
     private var viewType: Observable<MainVCViewType> = Observable(.movie)
+    private var models : [MovieModel]?
     
     private lazy var flowLayout: UICollectionViewFlowLayout = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -170,9 +168,37 @@ extension MainViewController : UICollectionViewDelegate,
             setSections(viewType: .movie)
         }
     }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if segmentController.selectedSegmentIndex == 0 {
+            switch indexPath.section{
+            case 0:
+                print(indexPath.row)
+                print(collectionView.cellForItem(at: indexPath))
+            case 1:
+                print(indexPath.row)
+            case 2:
+                print("Top Rated")
+            default:
+                break
+            }
+        }
+        
+        
+        
+    }
 }
 
 extension MainViewController: ShowcaseCollectionViewCellDelegate {
+    func didSelectItem(index: Int, type: MainCVSectionType, itemid: Int) {
+        let nextVM = MovieDetailViewModel()
+        //TODO: ??????
+        let nextVC = MovieDetailView(with: nextVM)
+        nextVM.movieId = itemid
+        navigationController?.pushViewController(nextVC, animated: true)
+    }
+    
+
+    
     func getNextPage(for type: MainCVSectionType) {
         switch type {
         case .popularMovie:
@@ -190,3 +216,5 @@ extension MainViewController: ShowcaseCollectionViewCellDelegate {
         }
     }
 }
+
+

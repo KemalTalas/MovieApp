@@ -9,6 +9,7 @@ import UIKit
 
 protocol ShowcaseCollectionViewCellDelegate: AnyObject {
     func getNextPage(for type: MainCVSectionType)
+    func didSelectItem(index: Int, type: MainCVSectionType,itemid: Int)
 }
 
 final class ShowcaseCollectionViewCell: UICollectionViewCell {
@@ -20,6 +21,8 @@ final class ShowcaseCollectionViewCell: UICollectionViewCell {
     
     private var models: [MovieModel]?
     private var cellType: MainCVSectionType?
+    private var segmentType : MainVCViewType?
+    private var navController : UINavigationController?
     private var pageCount: Int = 1
     weak var delegate: ShowcaseCollectionViewCellDelegate?
     
@@ -46,6 +49,9 @@ final class ShowcaseCollectionViewCell: UICollectionViewCell {
     
     func setCellType(type: MainCVSectionType) {
         self.cellType = type
+    }
+    func setSegmentType(type: MainVCViewType) {
+        self.segmentType = type
     }
 }
 
@@ -97,6 +103,20 @@ extension ShowcaseCollectionViewCell: UICollectionViewDelegate, UICollectionView
             pageCount += 1
             delegate?.getNextPage(for: type)
         }
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        navController = UINavigationController()
+        if models?[indexPath.row].name != nil {
+            print("it is TV")
+            let vc = TVDetailView()
+            self.navController?.pushViewController(vc, animated: true)
+        }else{
+            print("it is Movie")
+        }
+        guard let type = cellType
+        else { return }
+        delegate?.didSelectItem(index: indexPath.row, type: type, itemid: models?[indexPath.row].id ?? 0)
+        
     }
 }
 
